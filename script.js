@@ -42,6 +42,53 @@ const getEmptySlotCoordinates = () => {
   }
 };
 
+const isMovementValid = (move) => {
+  if (
+    move !== "ArrowUp" &&
+    move !== "ArrowDown" &&
+    move !== "ArrowLeft" &&
+    move !== "ArrowRight"
+  ) {
+    return false;
+  }
+  switch (move) {
+    case "ArrowUp":
+      if (currentEmptyCoordinates[0] === totalColumns - 1) {
+        return false;
+      }
+      break;
+    case "ArrowDown":
+      if (currentEmptyCoordinates[0] === 0) {
+        return false;
+      }
+      break;
+    case "ArrowLeft":
+      if (currentEmptyCoordinates[1] === totalColumns - 1) {
+        return false;
+      }
+      break;
+    case "ArrowRight":
+      if (currentEmptyCoordinates[1] === 0) {
+        return false;
+      }
+      break;
+    default:
+      return true;
+  }
+};
+
+const getSlotToMoveCoordinates = (move) => {
+  if (move === "ArrowUp") {
+    return [currentEmptyCoordinates[0] + 1, currentEmptyCoordinates[1]];
+  } else if (move === "ArrowDown") {
+    return [currentEmptyCoordinates[0] - 1, currentEmptyCoordinates[1]];
+  } else if (move === "ArrowLeft") {
+    return [currentEmptyCoordinates[0], currentEmptyCoordinates[1] + 1];
+  } else {
+    return [currentEmptyCoordinates[0], currentEmptyCoordinates[1] - 1];
+  }
+};
+
 /**
  *
  * @param {int} emptySlotPosition
