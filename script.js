@@ -1,7 +1,9 @@
 const totalColumns = 4;
 const grid = document.getElementById("the-grid");
 grid.addEventListener("keydown", (e) => {
+  tryToSwitchPositions(e.key);
   console.log(e.key);
+  renderGrid();
 });
 
 const positions = [
@@ -23,6 +25,7 @@ const positions = [
   "",
 ];
 const renderGrid = () => {
+  grid.innerHTML = "";
   for (let i = 0; i < positions.length; i++) {
     const text = document.createTextNode(positions[i]);
     const slot = document.createElement("div");
@@ -31,6 +34,7 @@ const renderGrid = () => {
     grid.appendChild(slot);
   }
 };
+
 const getCoordinates = (position) => {
   const x = Math.floor(position / totalColumns);
   const y = position % totalColumns;
@@ -41,72 +45,49 @@ const getEmptySlotCoordinates = () => {
     if (positions[i] === "") return getCoordinates(i);
   }
 };
-
-const isMovementValid = (move) => {
-  if (
-    move !== "ArrowUp" &&
-    move !== "ArrowDown" &&
-    move !== "ArrowLeft" &&
-    move !== "ArrowRight"
-  ) {
-    return false;
-  }
-  switch (move) {
-    case "ArrowUp":
-      if (currentEmptyCoordinates[0] === totalColumns - 1) {
-        return false;
-      }
-      break;
-    case "ArrowDown":
-      if (currentEmptyCoordinates[0] === 0) {
-        return false;
-      }
-      break;
-    case "ArrowLeft":
-      if (currentEmptyCoordinates[1] === totalColumns - 1) {
-        return false;
-      }
-      break;
-    case "ArrowRight":
-      if (currentEmptyCoordinates[1] === 0) {
-        return false;
-      }
-      break;
-    default:
-      return true;
-  }
-};
-
-const getSlotToMoveCoordinates = (move) => {
-  if (move === "ArrowUp") {
-    return [currentEmptyCoordinates[0] + 1, currentEmptyCoordinates[1]];
-  } else if (move === "ArrowDown") {
-    return [currentEmptyCoordinates[0] - 1, currentEmptyCoordinates[1]];
-  } else if (move === "ArrowLeft") {
-    return [currentEmptyCoordinates[0], currentEmptyCoordinates[1] + 1];
-  } else {
-    return [currentEmptyCoordinates[0], currentEmptyCoordinates[1] - 1];
-  }
-};
-
-/**
- *
- * @param {int} emptySlotPosition
- * @param {int} slotPositionToMove
- */
-const switchSlotPositions = (emptySlotPosition, slotPositionToMove) => {
-  currentEmptyCoordinates = getCoordinates(slotPositionToMove);
-  currentEmptyPosition = slotPositionToMove;
-  const temp = positions[slotPositionToMove];
-  positions[slotPositionToMove] = positions[emptySlotPosition];
-  positions[emptySlotPosition] = temp;
-};
-const isMoveValid = () => {};
 //will save the empty position to avoid search fot it all the time
 let currentEmptyPosition = positions.findIndex((element, i) => element === "");
 //same as coordinates
 let currentEmptyCoordinates = getEmptySlotCoordinates();
-switchSlotPositions(15, 7);
+
+const getCoordinatesToMove = (move) => {
+  switch (move) {
+    case "ArrowUp":
+      return currentEmptyCoordinates[0] === totalColumns - 1
+        ? [-1, -1]
+        : [currentEmptyCoordinates[0] + 1, currentEmptyCoordinates[1]];
+    case "ArrowDown":
+      return currentEmptyCoordinates[0] === 0
+        ? [-1, -1]
+        : [currentEmptyCoordinates[0] - 1, currentEmptyCoordinates[1]];
+    case "ArrowLeft":
+      return currentEmptyCoordinates[1] === totalColumns - 1
+        ? [-1, -1]
+        : [currentEmptyCoordinates[0], currentEmptyCoordinates[1] + 1];
+    case "ArrowRight":
+      return currentEmptyCoordinates[1] === 0
+        ? [-1, -1]
+        : [currentEmptyCoordinates[0], currentEmptyCoordinates[1] - 1];
+    default:
+      return [-1, -1];
+  }
+};
+
+const getPositionByCoordinate = (coordinate) => {
+  return coordinate[0] * totalColumns + coordinate[1];
+};
+
+const tryToSwitchPositions = (move) => {
+  const coordinateToMove = getCoordinatesToMove(move);
+  const positionToMove = getPositionByCoordinate(coordinateToMove);
+  if (coordinateToMove[0] !== -1 && coordinateToMove[1] !== -1) {
+    const tempPositionToChange = positions[currentEmptyPosition];
+    positions[currentEmptyPosition] = positions[positionToMove];
+    positions[positionToMove] = tempPositionToChange;
+    currentEmptyCoordinates = coordinateToMove;
+    currentEmptyPosition = positionToMove;
+  }
+};
+
 renderGrid();
-console.log(currentEmptyCoordinates);
-console.log(getEmptySlotCoordinates());
+grid.focus();
